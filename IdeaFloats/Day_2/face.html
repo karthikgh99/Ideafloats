@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Facebook Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="logo">facebook</div>
+
+  <div class="form-container">
+    <h2>Create a new account</h2>
+    <p>It's quick and easy</p>
+
+    <form id="signupForm">
+      <div class="name-fields">
+        <input type="text" id="fname" placeholder="First name" required />
+        <input type="text" id="lname" placeholder="Last name" required />
+      </div>
+
+      <label>Date of birth</label>
+      <div class="dob-gender">
+        <select id="day" required>
+          <option value="">Day</option>
+        </select>
+        <select id="month" required>
+          <option value="">Month</option>
+          <option>Jan</option>
+          <option>Feb</option>
+          <option>Mar</option>
+          <option>Apr</option>
+          <option>May</option>
+          <option>Jun</option>
+          <option>Jul</option>
+          <option>Aug</option>
+          <option>Sep</option>
+          <option>Oct</option>
+          <option>Nov</option>
+          <option>Dec</option>
+        </select>
+        <select id="year" required>
+          <option value="">Year</option>
+        </select>
+      </div>
+
+      <label>Gender</label>
+      <div class="gender-options">
+        <label><span>Female</span><input type="radio" name="gender" value="Female" required /></label>
+        <label><span>Male</span><input type="radio" name="gender" value="Male" required /></label>
+        <label><span>Custom</span><input type="radio" name="gender" value="Custom" required /></label>
+      </div>
+
+      <div class="field-wrapper">
+        <input type="text" id="email" placeholder="Mobile number or email address" required />
+      </div>
+      <div class="field-wrapper">
+        <input type="password" id="password" placeholder="New password" required />
+      </div>
+
+      <p class="terms">
+        By clicking Sign Up, you agree to our <a href="#">Terms</a>, <a href="#">Privacy Policy</a> and <a href="#">Cookies Policy</a>.
+      </p>
+      <p>You may receive SMS notifications from us and can opt out at any time.</p>
+
+      <div class="button-wrapper">
+        <button class="signup-btn" type="submit">Sign Up</button>
+      </div>
+
+      <div class="login-link">
+        <a href="login.html">Already have an account?</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const daySelect = document.getElementById('day');
+    for (let i = 1; i <= 31; i++) {
+      daySelect.innerHTML += `<option value="${i}">${i}</option>`;
+    }
+
+    const yearSelect = document.getElementById('year');
+    const thisYear = new Date().getFullYear();
+    for (let i = thisYear; i >= 1960; i--) {
+      yearSelect.innerHTML += `<option value="${i}">${i}</option>`;
+    }
+
+    function showError(inputId, message) {
+      const input = document.getElementById(inputId);
+      input.classList.add("invalid");
+
+      let tooltip = document.getElementById(inputId + "-tooltip");
+      if (!tooltip) {
+        tooltip = document.createElement("div");
+        tooltip.className = "tooltip-error";
+        tooltip.id = inputId + "-tooltip";
+        tooltip.innerText = message;
+        input.parentNode.appendChild(tooltip);
+      }
+      tooltip.style.display = "block";
+    }
+
+    function hideError(inputId) {
+      const input = document.getElementById(inputId);
+      input.classList.remove("invalid");
+      const tooltip = document.getElementById(inputId + "-tooltip");
+      if (tooltip) tooltip.style.display = "none";
+    }
+
+    document.getElementById("signupForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const fname = document.getElementById("fname").value.trim();
+      const lname = document.getElementById("lname").value.trim();
+      const gender = document.querySelector("input[name='gender']:checked")?.value;
+      const day = document.getElementById("day").value;
+      const month = document.getElementById("month").value;
+      const year = document.getElementById("year").value;
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+
+      const nameRegex = /^[A-Za-z]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const mobileRegex = /^[0-9]{10}$/;
+      const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+      let valid = true;
+
+      if (!fname.match(nameRegex)) {
+        showError("fname", "Only letters allowed.");
+        valid = false;
+      } else hideError("fname");
+
+      if (!lname.match(nameRegex)) {
+        showError("lname", "Only letters allowed.");
+        valid = false;
+      } else hideError("lname");
+
+      if (!gender) {
+        alert("Please select a gender.");
+        valid = false;
+      }
+
+      if (!day || !month || !year) {
+        alert("Please select your date of birth.");
+        valid = false;
+      }
+
+      if (!(email.match(emailRegex) || email.match(mobileRegex))) {
+        showError("email", "Enter valid email or 10-digit mobile.");
+        valid = false;
+      } else hideError("email");
+
+      if (!password.match(passwordRegex)) {
+        showError("password", "Min 8 chars, 1 number & special char.");
+        valid = false;
+      } else hideError("password");
+
+      if (!valid) return;
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      if (users.find(user => user.email === email)) {
+        alert("Account already exists.");
+        return;
+      }
+
+      users.push({ fname, lname, email, password, gender, dob: `${day}-${month}-${year}` });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Account created successfully!");
+      document.getElementById("signupForm").reset();
+    });
+  </script>
+</body>
+</html>
